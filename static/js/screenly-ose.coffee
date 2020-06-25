@@ -132,7 +132,7 @@ API.View.AddAssetView = class AddAssetView extends Backbone.View
   initialize: (oprions) =>
     ($ 'body').append @$el.html get_template 'asset-modal'
     (@$el.children ":first").modal()
-    (@$ '.cancel').val 'Back to Assets'
+    (@$ '.cancel').val 'Back'
 
     deadlines = start: now(), end: (moment().add 'days', 30).toDate()
     for own tag, deadline of deadlines

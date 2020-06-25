@@ -248,7 +248,7 @@
       var d, deadline, deadlines, tag;
       ($('body')).append(this.$el.html(get_template('asset-modal')));
       (this.$el.children(":first")).modal();
-      (this.$('.cancel')).val('Back to Assets');
+      (this.$('.cancel')).val('Back');
       deadlines = {
         start: now(),
         end: (moment().add('days', 30)).toDate()
