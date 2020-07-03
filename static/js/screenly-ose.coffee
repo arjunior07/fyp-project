@@ -317,7 +317,7 @@ API.View.EditAssetView = class EditAssetView extends Backbone.View
   render: () =>
     @undelegateEvents()
     (@$ f).attr 'disabled', on for f in 'mimetype uri file_upload'.split ' '
-    (@$ '#modalLabel').text "Edit Asset"
+    (@$ '#modalLabel').text "Edit Announcement"
     (@$ '.asset-location').hide(); (@$ '.uri').hide(); (@$ '.skip_asset_check_checkbox').hide()
     (@$ '.asset-location.edit').show()
     (@$ '.mime-select').prop('disabled', 'true')

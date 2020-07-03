@@ -561,7 +561,7 @@
         f = ref[k];
         (this.$(f)).attr('disabled', true);
       }
-      (this.$('#modalLabel')).text("Edit Asset");
+      (this.$('#modalLabel')).text("Edit Announcement");
       (this.$('.asset-location')).hide();
       (this.$('.uri')).hide();
       (this.$('.skip_asset_check_checkbox')).hide();
