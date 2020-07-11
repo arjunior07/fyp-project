@@ -1,12 +1,12 @@
 assets:
   - name: Screenly Weather Widget
-    uri: https://weather.srly.io
+    uri: https://www.udsm.ac.tz/
     mimetype: webpage
 
   - name: Screenly Clock Widget
-    uri: https://clock.srly.io
+    uri: https://www.coict.udsm.ac.tz/
     mimetype: webpage
 
   - name: Hacker News
-    uri: https://news.ycombinator.com
+    uri: http://ete.udsm.ac.tz/
     mimetype: webpage
