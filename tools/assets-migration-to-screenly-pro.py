@@ -115,7 +115,7 @@ def send_asset(asset):
     }
     asset_uri = asset['uri']
     if asset_uri.startswith(HOME):
-        asset_uri = os.path.join(ngrok_public_url, asset['asset_id'])
+        asset_uri = os.path.join(ngrok_public_url, asset['announcement_id'])
     data = {
         'title': asset['name'],
         'source_url': asset_uri

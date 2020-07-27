@@ -86,7 +86,7 @@ def get_uptime():
 
 
 def get_playlist():
-    screenly_db = os.path.join(os.getenv('HOME'), '.screenly/screenly.db')
+    screenly_db = os.path.join(os.getenv('HOME'), '.screenly/announcement.db')
     playlist = []
     if os.path.isfile(screenly_db):
         conn = sqlite3.connect(screenly_db)

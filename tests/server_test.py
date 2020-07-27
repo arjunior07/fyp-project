@@ -32,7 +32,7 @@ date_d = datetime.datetime(2013, 1, 21, 00, 00)
 
 asset_w = {
     'mimetype': u'web',
-    'asset_id': u'4c8dbce552edb5812d3a866cfe5f159e',
+    'announcement_id': u'4c8dbce552edb5812d3a866cfe5f159e',
     'name': u'いろはにほへど',
     'uri': u'http://www.wireload.net',
     'start_date': date_a,
@@ -51,7 +51,7 @@ asset_w_diff = {
 
 asset_x = {
     'mimetype': u'web',
-    'asset_id': u'4c8dbce552edb5812d3a866cfe5f159d',
+    'announcement_id': u'4c8dbce552edb5812d3a866cfe5f159d',
     'name': u'WireLoad',
     'uri': u'http://www.wireload.net',
     'start_date': date_a,
@@ -70,7 +70,7 @@ asset_x_diff = {
 
 asset_y = {
     'mimetype': u'image',
-    'asset_id': u'7e978f8c1204a6f70770a1eb54a76e9b',
+    'announcement_id': u'7e978f8c1204a6f70770a1eb54a76e9b',
     'name': u'Google',
     'uri': u'https://www.google.com/images/srpr/logo3w.png',
     'start_date': date_c,
@@ -87,7 +87,7 @@ asset_y_diff = {
 }
 asset_z = {
     'mimetype': u'image',
-    'asset_id': u'9722cd9c45e44dc9b23521be8132b38f',
+    'announcement_id': u'9722cd9c45e44dc9b23521be8132b38f',
     'name': u'url test',
     'start_date': date_c,
     'end_date': date_d,
@@ -141,12 +141,12 @@ class DBHelperTest(unittest.TestCase):
         assets_helper.create(self.conn, asset_x)
         asset_x_ = asset_x.copy()
         asset_x_.update(**asset_x_diff)
-        assets_helper.update(self.conn, asset_x['asset_id'], asset_x_)
+        assets_helper.update(self.conn, asset_x['announcement_id'], asset_x_)
 
         assets_helper.create(self.conn, asset_y)
         asset_y_ = asset_y.copy()
         asset_y_.update(**asset_y_diff)
-        assets_helper.update(self.conn, asset_y['asset_id'], asset_y_)
+        assets_helper.update(self.conn, asset_y['announcement_id'], asset_y_)
 
         should_be_y__x_ = assets_helper.read(self.conn)
         self.assertEqual([asset_y_, asset_x_], should_be_y__x_)
@@ -154,10 +154,10 @@ class DBHelperTest(unittest.TestCase):
 
     def test_create_delete_asset(self):
         assets_helper.create(self.conn, asset_x)
-        assets_helper.delete(self.conn, asset_x['asset_id'])
+        assets_helper.delete(self.conn, asset_x['announcement_id'])
 
         assets_helper.create(self.conn, asset_y)
-        assets_helper.delete(self.conn, asset_y['asset_id'])
+        assets_helper.delete(self.conn, asset_y['announcement_id'])
 
         should_be_empty = assets_helper.read(self.conn)
         self.assertEmpty(should_be_empty)
@@ -167,7 +167,7 @@ class DBHelperTest(unittest.TestCase):
         assets_helper.create(self.conn, asset_w)
         asset_w_ = asset_w.copy()
         asset_w_.update(**asset_w_diff)
-        assets_helper.update(self.conn, asset_w['asset_id'], asset_w_)
+        assets_helper.update(self.conn, asset_w['announcement_id'], asset_w_)
 
         should_be_w_ = assets_helper.read(self.conn)
         self.assertEqual([asset_w_], should_be_w_)
@@ -186,18 +186,18 @@ class DBHelperTest(unittest.TestCase):
 
         self.set_now(date_f)
         [should_be_x] = assets_helper.get_playlist(self.conn)
-        self.assertEqual(asset_x['asset_id'], should_be_x['asset_id'])
+        self.assertEqual(asset_x['announcement_id'], should_be_x['announcement_id'])
 
         self.set_now(date_g)
         should_be_y_x = assets_helper.get_playlist(self.conn)
-        self.assertEqual([should_be_y_x[0]['asset_id'],
-                          should_be_y_x[1]['asset_id']],
-                         [asset_y['asset_id'],
-                          asset_x['asset_id']])
+        self.assertEqual([should_be_y_x[0]['announcement_id'],
+                          should_be_y_x[1]['announcement_id']],
+                         [asset_y['announcement_id'],
+                          asset_x['announcement_id']])
 
         self.set_now(date_h)
         [should_be_y] = assets_helper.get_playlist(self.conn)
-        self.assertEqual(asset_y['asset_id'], should_be_y['asset_id'])
+        self.assertEqual(asset_y['announcement_id'], should_be_y['announcement_id'])
         # ✂--------
 
     def test_set_order(self):
@@ -205,16 +205,16 @@ class DBHelperTest(unittest.TestCase):
         for_order = [asset_y, asset_x]
 
         assets_helper.create_multiple(self.conn, assets)
-        assets_helper.save_ordering(self.conn, [asset['asset_id'] for asset in for_order])
+        assets_helper.save_ordering(self.conn, [asset['announcement_id'] for asset in for_order])
 
         fetched = assets_helper.read(self.conn)
 
         self.assertEquals(
-            [(0, asset_y['asset_id']),
-             (1, asset_x['asset_id']),
-             (2, asset_z['asset_id']),
-             (2, asset_w['asset_id'])],
-            [(asset['play_order'], asset['asset_id']) for asset in fetched])
+            [(0, asset_y['announcement_id']),
+             (1, asset_x['announcement_id']),
+             (2, asset_z['announcement_id']),
+             (2, asset_w['announcement_id'])],
+            [(asset['play_order'], asset['announcement_id']) for asset in fetched])
 
     def test_set_order_empty(self):
         assets = [asset_x, asset_y, asset_z]
@@ -238,7 +238,7 @@ class DBHelperTest(unittest.TestCase):
 
         self.assertEquals(asset_x_copy,
                           {'is_enabled': 1,
-                           'asset_id': None,
+                           'announcement_id': None,
                            'end_date': datetime.datetime(2013, 1, 19, 23, 59),
                            'is_active': 0,
                            'duration': u'5',

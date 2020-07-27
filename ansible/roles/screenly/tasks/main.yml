@@ -52,8 +52,8 @@
   copy:
     owner: pi
     group: pi
-    src: screenly.db
-    dest: /home/pi/.screenly/screenly.db
+    src: announcement.db
+    dest: /home/pi/.screenly/announcement.db
     force: no
 
 - name: Run database migration

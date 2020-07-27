@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 
 asset_x = {
     'mimetype': u'web',
-    'asset_id': u'4c8dbce552edb5812d3a866cfe5f159d',
+    'announcement_id': u'4c8dbce552edb5812d3a866cfe5f159d',
     'name': u'WireLoad',
     'uri': u'http://www.wireload.net',
     'start_date': datetime.now() - timedelta(days=1),
@@ -24,7 +24,7 @@ asset_x = {
 
 asset_y = {
     'mimetype': u'image',
-    'asset_id': u'7e978f8c1204a6f70770a1eb54a76e9b',
+    'announcement_id': u'7e978f8c1204a6f70770a1eb54a76e9b',
     'name': u'Google',
     'uri': u'https://www.google.com/images/srpr/logo3w.png',
     'start_date': datetime.now() - timedelta(days=1),
@@ -60,7 +60,7 @@ class WebTest(unittest.TestCase):
         with db.conn(settings['database']) as conn:
             assets = assets_helper.read(conn)
             for asset in assets:
-                assets_helper.delete(conn, asset['asset_id'])
+                assets_helper.delete(conn, asset['announcement_id'])
 
     def tearDown(self):
         pass
@@ -285,16 +285,16 @@ class WebTest(unittest.TestCase):
         with Browser() as browser:
             browser.visit(main_page_url)
 
-            asset_x_for_drag = browser.find_by_id(asset_x['asset_id'])
+            asset_x_for_drag = browser.find_by_id(asset_x['announcement_id'])
             sleep(1)
 
-            asset_y_to_reorder = browser.find_by_id(asset_y['asset_id'])
+            asset_y_to_reorder = browser.find_by_id(asset_y['announcement_id'])
             asset_x_for_drag.drag_and_drop(asset_y_to_reorder)
             sleep(3)  # backend need time to process request
 
         with db.conn(settings['database']) as conn:
-            x = assets_helper.read(conn, asset_x['asset_id'])
-            y = assets_helper.read(conn, asset_y['asset_id'])
+            x = assets_helper.read(conn, asset_x['announcement_id'])
+            y = assets_helper.read(conn, asset_y['announcement_id'])
 
             self.assertEqual(x['play_order'], 0)
             self.assertEqual(y['play_order'], 1)

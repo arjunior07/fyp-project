@@ -138,7 +138,7 @@
       return Asset.__super__.constructor.apply(this, arguments);
     }
 
-    Asset.prototype.idAttribute = "asset_id";
+    Asset.prototype.idAttribute = "announcement_id";
 
     Asset.prototype.fields = 'name mimetype uri start_date end_date duration skip_asset_check'.split(' ');
 
@@ -314,7 +314,7 @@
         (this.$('input')).prop('disabled', true);
         save.done((function(_this) {
           return function(data) {
-            model.id = data.asset_id;
+            model.id = data.announcement_id;
             (_this.$el.children(":first")).modal('hide');
             _.extend(model.attributes, data);
             return model.collection.add(model);
@@ -387,7 +387,7 @@
               });
               save = model.save();
               save.done(function(data) {
-                model.id = data.asset_id;
+                model.id = data.announcement_id;
                 _.extend(model.attributes, data);
                 return model.collection.add(model);
               });
@@ -684,7 +684,7 @@
       (this.$('input, select')).prop('disabled', true);
       save.done((function(_this) {
         return function(data) {
-          _this.model.id = data.asset_id;
+          _this.model.id = data.announcement_id;
           if (!_this.model.collection) {
             _this.collection.add(_this.model);
           }
@@ -849,7 +849,7 @@
         start_date: (date_to(json.start_date)).string(),
         end_date: (date_to(json.end_date)).string()
       })));
-      this.$el.prop('id', this.model.get('asset_id'));
+      this.$el.prop('id', this.model.get('announcement_id'));
       (this.$(".delete-asset-button")).popover({
         content: get_template('confirm-delete')
       });
@@ -1091,7 +1091,7 @@
       ($(window)).ajaxSuccess(function(event, request, settings) {
         if ((settings.url === new Assets().url) && (settings.type === 'POST')) {
           ($('#request-error')).html((get_template('request-success'))());
-          ($('#request-error .msg')).text('Asset has been successfully uploaded.');
+          ($('#request-error .msg')).text('Announcement has been successfully uploaded.');
           ($('#request-error')).show();
           return setTimeout(function() {
             return ($('#request-error')).fadeOut('slow');
