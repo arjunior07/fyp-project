@@ -14,7 +14,7 @@ database = os.path.join(configdir, 'screenly.db')
 comma = ','.join
 quest = lambda l: '=?,'.join(l) + '=?'
 query_read_all = lambda keys: 'SELECT ' + comma(keys) + ' FROM assets ORDER BY name'
-query_update = lambda keys: 'UPDATE assets SET ' + quest(keys) + ' WHERE announcement_id=?'
+query_update = lambda keys: 'UPDATE assets SET ' + quest(keys) + ' WHERE asset_id=?'
 mkdict = lambda keys: (lambda row: dict([(keys[ki], v) for ki, v in enumerate(row)]))
 
 
@@ -26,16 +26,16 @@ def is_active(asset):
 
 
 def read(c):
-    keys = 'announcement_id start_date end_date is_enabled'.split(' ')
+    keys = 'asset_id start_date end_date is_enabled'.split(' ')
     c.execute(query_read_all(keys))
     mk = mkdict(keys)
     assets = [mk(asset) for asset in c.fetchall()]
     return assets
 
 
-def update(c, announcement_id, asset):
-    del asset['announcement_id']
-    c.execute(query_update(asset.keys()), asset.values() + [announcement_id])
+def update(c, asset_id, asset):
+    del asset['asset_id']
+    c.execute(query_update(asset.keys()), asset.values() + [asset_id])
 
 
 def test_column(col, cursor):
@@ -85,12 +85,12 @@ def migrate_add_column(col, script):
             assets = read(cursor)
             for asset in assets:
                 asset.update({'play_order': 0})
-                update(cursor, asset['announcement_id'], asset)
+                update(cursor, asset['asset_id'], asset)
                 conn.commit()
 # ✂--------
 query_create_assets_table = """
 create table assets(
-announcement_id text primary key,
+asset_id text primary key,
 name text,
 uri text,
 md5 text,
@@ -100,9 +100,9 @@ duration text,
 mimetype text,
 is_enabled integer default 0,
 nocache integer default 0)"""
-query_make_announcement_id_primary_key = """
+query_make_asset_id_primary_key = """
 begin transaction;
-create table temp as select announcement_id,name,uri,md5,start_date,end_date,duration,mimetype,is_enabled,nocache from assets;
+create table temp as select asset_id,name,uri,md5,start_date,end_date,duration,mimetype,is_enabled,nocache from assets;
 drop table assets;
 """ + query_create_assets_table + """;
 insert or ignore into assets select * from temp;
@@ -110,7 +110,7 @@ drop table temp;
 commit;"""
 
 
-def migrate_make_announcement_id_primary_key():
+def migrate_make_asset_id_primary_key():
     has_primary_key = False
     with open_db_get_cursor() as (cursor, _):
         table_info = cursor.execute('pragma table_info(assets)')
@@ -119,8 +119,8 @@ def migrate_make_announcement_id_primary_key():
         print 'already has primary key'
     else:
         with open_db_get_cursor() as (cursor, _):
-            cursor.executescript(query_make_announcement_id_primary_key)
-            print 'announcement_id is primary key'
+            cursor.executescript(query_make_asset_id_primary_key)
+            print 'asset_id is primary key'
 # ✂--------
 query_add_is_enabled_and_nocache = """
 begin transaction;
@@ -140,16 +140,16 @@ def migrate_add_is_enabled_and_nocache():
             assets = read(cursor)
             for asset in assets:
                 asset.update({'is_enabled': is_active(asset)})
-                update(cursor, asset['announcement_id'], asset)
+                update(cursor, asset['asset_id'], asset)
                 conn.commit()
             print 'Added new columns (' + col + ')'
 # ✂--------
 query_drop_filename = """BEGIN TRANSACTION;
-CREATE TEMPORARY TABLE assets_backup(announcement_id, name, uri, md5, start_date, end_date, duration, mimetype);
-INSERT INTO assets_backup SELECT announcement_id, name, uri, md5, start_date, end_date, duration, mimetype FROM assets;
+CREATE TEMPORARY TABLE assets_backup(asset_id, name, uri, md5, start_date, end_date, duration, mimetype);
+INSERT INTO assets_backup SELECT asset_id, name, uri, md5, start_date, end_date, duration, mimetype FROM assets;
 DROP TABLE assets;
-CREATE TABLE assets(announcement_id TEXT, name TEXT, uri TEXT, md5 TEXT, start_date TIMESTAMP, end_date TIMESTAMP, duration TEXT, mimetype TEXT);
-INSERT INTO assets SELECT announcement_id, name, uri, md5, start_date, end_date, duration, mimetype FROM assets_backup;
+CREATE TABLE assets(asset_id TEXT, name TEXT, uri TEXT, md5 TEXT, start_date TIMESTAMP, end_date TIMESTAMP, duration TEXT, mimetype TEXT);
+INSERT INTO assets SELECT asset_id, name, uri, md5, start_date, end_date, duration, mimetype FROM assets_backup;
 DROP TABLE assets_backup;
 COMMIT;
 """
@@ -169,7 +169,7 @@ def migrate_drop_filename():
 if __name__ == '__main__':
     migrate_drop_filename()
     migrate_add_is_enabled_and_nocache()
-    migrate_make_announcement_id_primary_key()
+    migrate_make_asset_id_primary_key()
     migrate_add_column('play_order', query_add_play_order)
     migrate_add_column('is_processing', query_add_is_processing)
     migrate_add_column('skip_asset_check', query_add_skip_asset_check)

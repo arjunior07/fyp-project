@@ -28,7 +28,7 @@
         end_date = new Date();
         end_date.setMonth(end_date.getMonth() + 2);
         asset = new Screenly.Asset({
-          announcement_id: 2,
+          asset_id: 2,
           duration: "8",
           end_date: end_date,
           is_enabled: true,
@@ -96,21 +96,21 @@
           var asset1, asset2, asset3, assets;
           assets = new Screenly.Assets();
           asset1 = new Screenly.Asset({
-            announcement_id: 1,
+            asset_id: 1,
             is_enabled: true,
             name: 'AAA',
             uri: 'http://www.screenlyapp.com',
             play_order: 2
           });
           asset2 = new Screenly.Asset({
-            announcement_id: 2,
+            asset_id: 2,
             is_enabled: true,
             name: 'BBB',
             uri: 'http://www.screenlyapp.com',
             play_order: 1
           });
           asset3 = new Screenly.Asset({
-            announcement_id: 3,
+            asset_id: 3,
             is_enabled: true,
             name: 'CCC',
             uri: 'http://www.screenlyapp.com',

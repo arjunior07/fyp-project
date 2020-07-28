@@ -2,10 +2,10 @@ import db
 import queries
 import datetime
 
-FIELDS = ["announcement_id", "name", "uri", "start_date",
+FIELDS = ["asset_id", "name", "uri", "start_date",
           "end_date", "duration", "mimetype", "is_enabled", "play_order"]
 
-create_assets_table = 'CREATE TABLE assets(announcement_id text primary key, name text, uri text, start_date timestamp, end_date timestamp, duration text, mimetype text, is_enabled integer default 0,  play_order integer default 0)'
+create_assets_table = 'CREATE TABLE assets(asset_id text primary key, name text, uri text, start_date timestamp, end_date timestamp, duration text, mimetype text, is_enabled integer default 0,  play_order integer default 0)'
 
 
 # Note all times are naive for legacy reasons but always UTC.
@@ -16,7 +16,7 @@ def is_active(asset, at_time=None):
     """Accepts an asset dictionary and determines if it
     is active at the given time. If no time is specified, 'now' is used.
 
-    >>> asset = {'announcement_id': u'4c8dbce552edb5812d3a866cfe5f159d', 'mimetype': u'web', 'name': u'WireLoad', 'end_date': datetime.datetime(2013, 1, 19, 23, 59), 'uri': u'http://www.wireload.net', 'duration': u'5', 'is_enabled': True, 'nocache': 0, 'play_order': 1, 'start_date': datetime.datetime(2013, 1, 16, 0, 0), 'skip_asset_check': 0};
+    >>> asset = {'asset_id': u'4c8dbce552edb5812d3a866cfe5f159d', 'mimetype': u'web', 'name': u'WireLoad', 'end_date': datetime.datetime(2013, 1, 19, 23, 59), 'uri': u'http://www.wireload.net', 'duration': u'5', 'is_enabled': True, 'nocache': 0, 'play_order': 1, 'start_date': datetime.datetime(2013, 1, 16, 0, 0), 'skip_asset_check': 0};
     >>> is_active(asset, datetime.datetime(2013, 1, 16, 12, 00))
     True
     >>> is_active(asset, datetime.datetime(2014, 1, 1))
@@ -83,7 +83,7 @@ def create_multiple(conn, assets):
     return assets
 
 
-def read(conn, announcement_id=None, keys=FIELDS):
+def read(conn, asset_id=None, keys=FIELDS):
     """
     Fetch one or more assets from the database.
     Returns a list of dicts or one dict.
@@ -92,39 +92,39 @@ def read(conn, announcement_id=None, keys=FIELDS):
     assets = []
     mk = mkdict(keys)
     with db.cursor(conn) as c:
-        if announcement_id is None:
+        if asset_id is None:
             c.execute(queries.read_all(keys))
         else:
-            c.execute(queries.read(keys), [announcement_id])
+            c.execute(queries.read(keys), [asset_id])
         assets = [mk(asset) for asset in c.fetchall()]
     [asset.update({'is_active': is_active(asset)}) for asset in assets]
-    if announcement_id and len(assets):
+    if asset_id and len(assets):
         return assets[0]
     return assets
 
 
-def update(conn, announcement_id, asset):
+def update(conn, asset_id, asset):
     """
     Update an asset in the database.
     Returns the asset.
-    Asset's announcement_id and is_active field is updated before returning.
+    Asset's asset_id and is_active field is updated before returning.
     """
-    if asset.get('announcement_id'):
-        del asset['announcement_id']
+    if asset.get('asset_id'):
+        del asset['asset_id']
     if 'is_active' in asset:
         asset.pop('is_active')
     with db.commit(conn) as c:
-        c.execute(queries.update(asset.keys()), asset.values() + [announcement_id])
-    asset.update({'announcement_id': announcement_id})
+        c.execute(queries.update(asset.keys()), asset.values() + [asset_id])
+    asset.update({'asset_id': asset_id})
     if 'start_date' in asset:
         asset.update({'is_active': is_active(asset)})
     return asset
 
 
-def delete(conn, announcement_id):
+def delete(conn, asset_id):
     """Remove an asset from the database."""
     with db.commit(conn) as c:
-        c.execute(queries.remove, [announcement_id])
+        c.execute(queries.remove, [asset_id])
 
 
 def save_ordering(db_conn, ids):
@@ -133,7 +133,7 @@ def save_ordering(db_conn, ids):
     if ids:
         with db.commit(db_conn) as c:
             c.execute(queries.multiple_update_with_case(['play_order', ], len(ids)),
-                      sum([[announcement_id, play_order] for play_order, announcement_id in enumerate(ids)], []) + ids)
+                      sum([[asset_id, play_order] for play_order, asset_id in enumerate(ids)], []) + ids)
 
     # Set the play order to a high value for all inactive assets.
     with db.commit(db_conn) as c:

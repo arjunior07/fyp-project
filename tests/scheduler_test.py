@@ -10,7 +10,7 @@ import os
 
 asset_x = {
     'mimetype': u'web',
-    'announcement_id': u'4c8dbce552edb5812d3a866cfe5f159d',
+    'asset_id': u'4c8dbce552edb5812d3a866cfe5f159d',
     'name': u'WireLoad',
     'uri': u'http://www.wireload.net',
     'start_date': datetime.now() - timedelta(days=3),
@@ -29,7 +29,7 @@ asset_x_diff = {
 
 asset_y = {
     'mimetype': u'image',
-    'announcement_id': u'7e978f8c1204a6f70770a1eb54a76e9b',
+    'asset_id': u'7e978f8c1204a6f70770a1eb54a76e9b',
     'name': u'Google',
     'uri': u'https://www.google.com/images/srpr/logo3w.png',
     'start_date': datetime.now() - timedelta(days=1),
@@ -44,7 +44,7 @@ asset_y = {
 
 asset_z = {
     'mimetype': u'image',
-    'announcement_id': u'7e978f8c1204a6f70770a1eb54a76e9c',
+    'asset_id': u'7e978f8c1204a6f70770a1eb54a76e9c',
     'name': u'Google',
     'uri': u'https://www.google.com/images/srpr/logo3w.png',
     'start_date': datetime.now() - timedelta(days=1),
@@ -59,7 +59,7 @@ asset_z = {
 
 asset_tomorrow = {
     'mimetype': u'image',
-    'announcement_id': u'7e978f8c1204a6f70770a1eb54a76e9c',
+    'asset_id': u'7e978f8c1204a6f70770a1eb54a76e9c',
     'name': u'Google',
     'uri': u'https://www.google.com/images/srpr/logo3w.png',
     'start_date': datetime.now() + timedelta(days=1),
