@@ -18,7 +18,7 @@ default_duration = 45
 
 [main]
 assetdir = /home/pi/screenly_assets
-database = /home/pi/.screenly/announcement.db
+database = /home/pi/.screenly/screenly.db
 use_ssl = False
 
 """

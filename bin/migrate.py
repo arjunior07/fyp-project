@@ -9,7 +9,7 @@ from contextlib import contextmanager
 import datetime
 
 configdir = os.path.join(os.getenv('HOME'), '.screenly/')
-database = os.path.join(configdir, 'announcement.db')
+database = os.path.join(configdir, 'screenly.db')
 
 comma = ','.join
 quest = lambda l: '=?,'.join(l) + '=?'

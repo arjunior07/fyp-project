@@ -19,7 +19,7 @@ DEFAULTS = {
     'main': {
         'analytics_opt_out': False,
         'assetdir': 'screenly_assets',
-        'database': CONFIG_DIR + 'announcement.db',
+        'database': CONFIG_DIR + 'screenly.db',
         'date_format': 'mm/dd/yyyy',
         'use_24_hour_clock': False,
         'use_ssl': False,
