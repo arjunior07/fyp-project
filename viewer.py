@@ -84,8 +84,8 @@ def skip_asset(back=False):
     system('pkill -SIGUSR1 -f viewer.py')
 
 
-def navigate_to_asset(asset_id):
-    scheduler.extra_asset = asset_id
+def navigate_to_asset(announce_id):
+    scheduler.extra_asset = announce_id
     system('pkill -SIGUSR1 -f viewer.py')
 
 
@@ -105,9 +105,9 @@ def command_not_found():
     logging.error("Command not found")
 
 
-def send_current_asset_id_to_server():
+def send_current_announce_id_to_server():
     consumer = ZmqConsumer()
-    consumer.send({'current_asset_id': scheduler.current_asset_id})
+    consumer.send({'current_announce_id': scheduler.current_announce_id})
 
 
 commands = {
@@ -118,7 +118,7 @@ commands = {
     'stop': lambda _: stop_loop(),
     'play': lambda _: play_loop(),
     'unknown': lambda _: command_not_found(),
-    'current_asset_id': lambda _: send_current_asset_id_to_server()
+    'current_announce_id': lambda _: send_current_announce_id_to_server()
 }
 
 
@@ -148,7 +148,7 @@ class Scheduler(object):
         logging.debug('Scheduler init')
         self.assets = []
         self.counter = 0
-        self.current_asset_id = None
+        self.current_announce_id = None
         self.deadline = None
         self.extra_asset = None
         self.index = 0
@@ -161,7 +161,7 @@ class Scheduler(object):
         if self.extra_asset is not None:
             asset = get_specific_asset(self.extra_asset)
             if asset and asset['is_processing'] == 0:
-                self.current_asset_id = self.extra_asset
+                self.current_announce_id = self.extra_asset
                 self.extra_asset = None
                 return asset
             logging.error("Asset not found or processed")
@@ -170,7 +170,7 @@ class Scheduler(object):
         self.refresh_playlist()
         logging.debug('get_next_asset after refresh')
         if not self.assets:
-            self.current_asset_id = None
+            self.current_announce_id = None
             return None
         if self.reverse:
             idx = (self.index - 2) % len(self.assets)
@@ -184,7 +184,7 @@ class Scheduler(object):
             self.counter += 1
 
         current_asset = self.assets[idx]
-        self.current_asset_id = current_asset.get('asset_id')
+        self.current_announce_id = current_asset.get('announce_id')
         return current_asset
 
     def refresh_playlist(self):
@@ -223,9 +223,9 @@ class Scheduler(object):
             return 0
 
 
-def get_specific_asset(asset_id):
+def get_specific_asset(announce_id):
     logging.info('Getting specific asset')
-    return assets_helper.read(db_conn, asset_id)
+    return assets_helper.read(db_conn, announce_id)
 
 
 def generate_asset_list():

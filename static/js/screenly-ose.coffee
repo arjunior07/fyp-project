@@ -80,7 +80,7 @@ Backbone.emulateJSON = off
 
 # Models
 API.Asset = class Asset extends Backbone.Model
-  idAttribute: "asset_id"
+  idAttribute: "announce_id"
   fields: 'name mimetype uri start_date end_date duration skip_asset_check'.split ' '
   defaults: ->
     name: ''
@@ -170,7 +170,7 @@ API.View.AddAssetView = class AddAssetView extends Backbone.View
 
       (@$ 'input').prop 'disabled', on
       save.done (data) =>
-        model.id = data.asset_id
+        model.id = data.announce_id
         (@$el.children ":first").modal 'hide'
         _.extend model.attributes, data
         model.collection.add model
@@ -223,7 +223,7 @@ API.View.AddAssetView = class AddAssetView extends Backbone.View
 
             save = model.save()
             save.done (data) ->
-              model.id = data.asset_id
+              model.id = data.announce_id
               _.extend model.attributes, data
               model.collection.add model
             save.fail ->
@@ -394,7 +394,7 @@ API.View.EditAssetView = class EditAssetView extends Backbone.View
 
     (@$ 'input, select').prop 'disabled', on
     save.done (data) =>
-      @model.id = data.asset_id
+      @model.id = data.announce_id
       @collection.add @model if not @model.collection
       (@$el.children ":first").modal 'hide'
       _.extend @model.attributes, data
@@ -485,7 +485,7 @@ API.View.AssetRowView = class AssetRowView extends Backbone.View
       duration: durationSecondsToHumanReadable(json.duration)
       start_date: (date_to json.start_date).string()
       end_date: (date_to json.end_date).string()
-    @$el.prop 'id', @model.get 'asset_id'
+    @$el.prop 'id', @model.get 'announce_id'
     (@$ ".delete-asset-button").popover content: get_template 'confirm-delete'
     (@$ ".toggle input").prop "checked", @model.get 'is_enabled'
     (@$ ".asset-icon").addClass switch @model.get "mimetype"
