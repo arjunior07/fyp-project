@@ -17,10 +17,7 @@ asset_x = {
     'end_date': datetime.now() + timedelta(days=3),
     'duration': u'5',
     'is_enabled': 1,
-    'nocache': 0,
-    'is_processing': 0,
-    'play_order': 1,
-    'skip_asset_check': 0
+    'play_order': 1
 }
 
 asset_x_diff = {
@@ -36,10 +33,7 @@ asset_y = {
     'end_date': datetime.now() + timedelta(days=2),
     'duration': u'6',
     'is_enabled': 1,
-    'nocache': 0,
-    'is_processing': 0,
-    'play_order': 0,
-    'skip_asset_check': 0
+    'play_order': 0
 }
 
 asset_z = {
@@ -51,10 +45,7 @@ asset_z = {
     'end_date': datetime.now() + timedelta(days=1),
     'duration': u'6',
     'is_enabled': 1,
-    'nocache': 0,
-    'is_processing': 0,
-    'play_order': 2,
-    'skip_asset_check': 0
+    'play_order': 2
 }
 
 asset_tomorrow = {
@@ -66,10 +57,7 @@ asset_tomorrow = {
     'end_date': datetime.now() + timedelta(days=1),
     'duration': u'6',
     'is_enabled': 1,
-    'nocache': 0,
-    'is_processing': 0,
-    'play_order': 2,
-    'skip_asset_check': 0
+    'play_order': 2
 }
 
 FAKE_DB_PATH = '/tmp/fakedb'

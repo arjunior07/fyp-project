@@ -17,9 +17,7 @@ asset_x = {
     'end_date': datetime.now() + timedelta(days=1),
     'duration': u'5',
     'is_enabled': 0,
-    'nocache': 0,
-    'play_order': 1,
-    'skip_asset_check': 0
+    'play_order': 1
 }
 
 asset_y = {
@@ -31,9 +29,7 @@ asset_y = {
     'end_date': datetime.now() + timedelta(days=1),
     'duration': u'6',
     'is_enabled': 1,
-    'nocache': 0,
-    'play_order': 0,
-    'skip_asset_check': 0
+    'play_order': 0
 }
 
 main_page_url = 'http://foo:bar@localhost:8080'

@@ -81,20 +81,16 @@ Backbone.emulateJSON = off
 # Models
 API.Asset = class Asset extends Backbone.Model
   idAttribute: "asset_id"
-  fields: 'name mimetype uri start_date end_date duration skip_asset_check'.split ' '
+  fields: 'name mimetype start_date end_date duration '.split ' '
   defaults: ->
     name: ''
     mimetype: 'webpage'
-    uri: ''
     is_active: 1
     start_date: ''
     end_date: ''
     duration: defaultDuration
     is_enabled: 0
-    is_processing: 0
-    nocache: 0
     play_order: 0
-    skip_asset_check: 0
   active: =>
     if @get('is_enabled') and @get('start_date') and @get('end_date')
       at = now()
@@ -180,7 +176,7 @@ API.View.AddAssetView = class AddAssetView extends Backbone.View
     no
 
   toggleSkipAssetCheck: (e) =>
-    @$fv 'skip_asset_check', if parseInt((@$fv 'skip_asset_check')) == 1 then 0 else 1
+    @$fv 'skip_asset_check', if parseInt((@$fv '')) == 1 then 0 else 1
 
   change_mimetype: =>
     if (@$fv 'mimetype') == "video"

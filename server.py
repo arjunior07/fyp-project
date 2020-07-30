@@ -283,19 +283,7 @@ class AssetModel(Schema):
             'type': 'integer',
             'format': 'int64',
         },
-        'is_processing': {
-            'type': 'integer',
-            'format': 'int64',
-        },
-        'nocache': {
-            'type': 'integer',
-            'format': 'int64',
-        },
         'play_order': {
-            'type': 'integer',
-            'format': 'int64',
-        },
-        'skip_asset_check': {
             'type': 'integer',
             'format': 'int64',
         }
@@ -321,15 +309,7 @@ class AssetRequestModel(Schema):
             'type': 'integer',
             'format': 'int64',
         },
-        'nocache': {
-            'type': 'integer',
-            'format': 'int64',
-        },
         'play_order': {
-            'type': 'integer',
-            'format': 'int64',
-        },
-        'skip_asset_check': {
             'type': 'integer',
             'format': 'int64',
         }
@@ -373,15 +353,7 @@ class AssetPropertiesModel(Schema):
             'type': 'integer',
             'format': 'int64',
         },
-        'nocache': {
-            'type': 'integer',
-            'format': 'int64',
-        },
         'play_order': {
-            'type': 'integer',
-            'format': 'int64',
-        },
-        'skip_asset_check': {
             'type': 'integer',
             'format': 'int64',
         }
@@ -435,8 +407,6 @@ def prepare_asset(request, unique_name=False):
         'mimetype': get('mimetype'),
         'asset_id': get('asset_id'),
         'is_enabled': get('is_enabled'),
-        'is_processing': get('is_processing'),
-        'nocache': get('nocache'),
     }
 
     uri = escape(get('uri').encode('utf-8'))
@@ -468,7 +438,7 @@ def prepare_asset(request, unique_name=False):
         # Crashes if it's not an int. We want that.
         asset['duration'] = int(get('duration'))
 
-    asset['skip_asset_check'] = int(get('skip_asset_check')) if int(get('skip_asset_check')) else 0
+    
 
     # parse date via python-dateutil and remove timezone info
     if get('start_date'):
@@ -593,12 +563,9 @@ def prepare_usb_asset(filepath, **kwargs):
         'end_date': kwargs['end_date'],
         'is_active': 1,
         'is_enabled': kwargs['activate'],
-        'is_processing': 0,
         'mimetype': filetype,
         'name': asset_name,
-        'nocache': 0,
         'play_order': 0,
-        'skip_asset_check': 0,
         'start_date': kwargs['start_date'],
         'uri': filepath,
     }
@@ -617,12 +584,9 @@ def prepare_default_asset(**kwargs):
         'end_date': kwargs['end_date'],
         'is_active': 1,
         'is_enabled': True,
-        'is_processing': 0,
         'mimetype': kwargs['mimetype'],
         'name': kwargs['name'],
-        'nocache': 0,
         'play_order': 0,
-        'skip_asset_check': 0,
         'start_date': kwargs['start_date'],
         'uri': kwargs['uri']
     }
@@ -735,10 +699,7 @@ class Assets(Resource):
                         "end_date": "2017-03-01T00:33:00.000Z",
                         "duration": "10",
                         "is_enabled": 0,
-                        "is_processing": 0,
-                        "nocache": 0,
                         "play_order": 0,
-                        "skip_asset_check": 0
                     }"
                     '''
             }
@@ -806,10 +767,7 @@ class Asset(Resource):
                         "end_date": "2017-03-01T00:33:00.000Z",
                         "duration": "10",
                         "is_enabled": 0,
-                        "is_processing": 0,
-                        "nocache": 0,
                         "play_order": 0,
-                        "skip_asset_check": 0
                     }"
                     '''
             }

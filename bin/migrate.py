@@ -87,7 +87,7 @@ duration text,
 mimetype text)"""
 query_make_asset_id_primary_key = """
 begin transaction;
-create table temp as select asset_id,name,uri,md5,start_date,end_date,duration,mimetype,is_enabled,nocache from assets;
+create table temp as select asset_id,name,start_date,end_date,duration,mimetype,is_enabled from assets;
 drop table assets;
 """ + query_create_assets_table + """;
 insert or ignore into assets select * from temp;
@@ -125,8 +125,8 @@ def migrate_add_is_enabled_and_nocache():
             print 'Added new columns (' + col + ')'
 # ✂--------
 query_drop_filename = """BEGIN TRANSACTION;
-CREATE TEMPORARY TABLE assets_backup(asset_id, name, uri, md5, start_date, end_date, duration, mimetype);
-INSERT INTO assets_backup SELECT asset_id, name, uri, md5, start_date, end_date, duration, mimetype FROM assets;
+CREATE TEMPORARY TABLE assets_backup(asset_id, name, start_date, end_date, duration, mimetype);
+INSERT INTO assets_backup SELECT asset_id, name, start_date, end_date, duration, mimetype FROM assets;
 DROP TABLE assets;
 CREATE TABLE assets(asset_id TEXT, name TEXT, start_date TIMESTAMP, end_date TIMESTAMP, duration TEXT, mimetype TEXT);
 INSERT INTO assets SELECT asset_id, name, start_date, end_date, duration, mimetype FROM assets_backup;

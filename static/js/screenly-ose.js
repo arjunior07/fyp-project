@@ -140,22 +140,18 @@
 
     Asset.prototype.idAttribute = "asset_id";
 
-    Asset.prototype.fields = 'name mimetype uri start_date end_date duration skip_asset_check'.split(' ');
+    Asset.prototype.fields = 'name mimetype start_date end_date duration '.split(' ');
 
     Asset.prototype.defaults = function() {
       return {
         name: '',
         mimetype: 'webpage',
-        uri: '',
         is_active: 1,
         start_date: '',
         end_date: '',
         duration: defaultDuration,
         is_enabled: 0,
-        is_processing: 0,
-        nocache: 0,
         play_order: 0,
-        skip_asset_check: 0
       };
     };
 

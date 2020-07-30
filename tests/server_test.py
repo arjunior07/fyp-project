@@ -39,10 +39,7 @@ asset_w = {
     'end_date': date_b,
     'duration': u'5',
     'is_enabled': 1,
-    'nocache': 0,
-    'is_processing': 0,
-    'play_order': 1,
-    'skip_asset_check': 0
+    'play_order': 1
 }
 
 asset_w_diff = {
@@ -58,10 +55,7 @@ asset_x = {
     'end_date': date_b,
     'duration': u'5',
     'is_enabled': 1,
-    'nocache': 0,
-    'is_processing': 0,
-    'play_order': 1,
-    'skip_asset_check': 0
+    'play_order': 1
 }
 
 asset_x_diff = {
@@ -77,10 +71,7 @@ asset_y = {
     'end_date': date_d,
     'duration': u'6',
     'is_enabled': 1,
-    'nocache': 0,
-    'is_processing': 0,
-    'play_order': 0,
-    'skip_asset_check': 0
+    'play_order': 0
 }
 asset_y_diff = {
     'duration': u'324'
@@ -92,10 +83,7 @@ asset_z = {
     'start_date': date_c,
     'end_date': date_d,
     'duration': u'1',
-    'is_enabled': 1,
-    'nocache': 0,
-    'is_processing': 0,
-    'skip_asset_check': 0
+    'is_enabled': 1
 }
 url_fail = 'http://doesnotwork.example.com'
 url_redir = 'http://example.com'
@@ -242,12 +230,9 @@ class DBHelperTest(unittest.TestCase):
                            'end_date': datetime.datetime(2013, 1, 19, 23, 59),
                            'is_active': 0,
                            'duration': u'5',
-                           'is_processing': 0,
                            'mimetype': u'web',
                            'name': 'New name',
-                           'nocache': 0,
                            'uri': u'http://www.wireload.net',
-                           'skip_asset_check': 0,
                            'play_order': 1,
                            'start_date': datetime.datetime(2013, 1, 16, 0, 0)
                            }
