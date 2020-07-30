@@ -175,7 +175,7 @@ def remove_usb_assets(mountpoint):
     with db.conn(settings['database']) as conn:
         for asset in assets_helper.read(conn):
             if asset['uri'].startswith(mountpoint):
-                assets_helper.delete(conn, asset['announce_id'])
+                assets_helper.delete(conn, asset['asset_id'])
 
 
 @celery.task
@@ -188,7 +188,7 @@ def cleanup_usb_assets(media_dir='/media'):
                 location = re.search(r'^(/\w+/\w+[^/])', asset['uri'])
                 if location:
                     if location.group() not in mountpoints:
-                        assets_helper.delete(conn, asset['announce_id'])
+                        assets_helper.delete(conn, asset['asset_id'])
 
 
 ################################
@@ -262,7 +262,7 @@ def template(template_name, **context):
 class AssetModel(Schema):
     type = 'object'
     properties = {
-        'announce_id': {'type': 'string'},
+        'asset_id': {'type': 'string'},
         'name': {'type': 'string'},
         'uri': {'type': 'string'},
         'start_date': {
@@ -433,7 +433,7 @@ def prepare_asset(request, unique_name=False):
     asset = {
         'name': name,
         'mimetype': get('mimetype'),
-        'announce_id': get('announce_id'),
+        'asset_id': get('asset_id'),
         'is_enabled': get('is_enabled'),
         'is_processing': get('is_processing'),
         'nocache': get('nocache'),
@@ -448,14 +448,14 @@ def prepare_asset(request, unique_name=False):
         if not validate_url(uri):
             raise Exception("Invalid URL. Failed to add asset.")
 
-    if not asset['announce_id']:
-        asset['announce_id'] = uuid.uuid4().hex
+    if not asset['asset_id']:
+        asset['asset_id'] = uuid.uuid4().hex
         if uri.startswith('/'):
-            rename(uri, path.join(settings['assetdir'], asset['announce_id']))
-            uri = path.join(settings['assetdir'], asset['announce_id'])
+            rename(uri, path.join(settings['assetdir'], asset['asset_id']))
+            uri = path.join(settings['assetdir'], asset['asset_id'])
 
     if 'youtube_asset' in asset['mimetype']:
-        uri, asset['name'], asset['duration'] = download_video_from_youtube(uri, asset['announce_id'])
+        uri, asset['name'], asset['duration'] = download_video_from_youtube(uri, asset['asset_id'])
         asset['mimetype'] = 'video'
         asset['is_processing'] = 1
 
@@ -484,7 +484,7 @@ def prepare_asset(request, unique_name=False):
     return asset
 
 
-def prepare_asset_v1_2(request_environ, announce_id=None, unique_name=False):
+def prepare_asset_v1_2(request_environ, asset_id=None, unique_name=False):
     data = json.loads(request_environ.data)
 
     def get(key):
@@ -535,14 +535,14 @@ def prepare_asset_v1_2(request_environ, announce_id=None, unique_name=False):
         if not validate_url(uri):
             raise Exception("Invalid URL. Failed to add asset.")
 
-    if not announce_id:
-        asset['announce_id'] = uuid.uuid4().hex
+    if not asset_id:
+        asset['asset_id'] = uuid.uuid4().hex
         if uri.startswith('/'):
-            rename(uri, path.join(settings['assetdir'], asset['announce_id']))
-            uri = path.join(settings['assetdir'], asset['announce_id'])
+            rename(uri, path.join(settings['assetdir'], asset['asset_id']))
+            uri = path.join(settings['assetdir'], asset['asset_id'])
 
     if 'youtube_asset' in asset['mimetype']:
-        uri, asset['name'], asset['duration'] = download_video_from_youtube(uri, asset['announce_id'])
+        uri, asset['name'], asset['duration'] = download_video_from_youtube(uri, asset['asset_id'])
         asset['mimetype'] = 'video'
         asset['is_processing'] = 1
 
@@ -579,16 +579,16 @@ def prepare_usb_asset(filepath, **kwargs):
     if filetype not in ['image', 'video']:
         return
 
-    announce_id = uuid.uuid4().hex
+    asset_id = uuid.uuid4().hex
     asset_name = path.basename(filepath)
     duration = int(get_video_duration(filepath).total_seconds()) if "video" == filetype else int(kwargs['duration'])
 
     if kwargs['copy']:
-        shutil.copy(filepath, path.join(settings['assetdir'], announce_id))
-        filepath = path.join(settings['assetdir'], announce_id)
+        shutil.copy(filepath, path.join(settings['assetdir'], asset_id))
+        filepath = path.join(settings['assetdir'], asset_id)
 
     return {
-        'announce_id': announce_id,
+        'asset_id': asset_id,
         'duration': duration,
         'end_date': kwargs['end_date'],
         'is_active': 1,
@@ -608,11 +608,11 @@ def prepare_default_asset(**kwargs):
     if kwargs['mimetype'] not in ['image', 'video', 'webpage']:
         return
 
-    announce_id = 'default_{}'.format(uuid.uuid4().hex)
+    asset_id = 'default_{}'.format(uuid.uuid4().hex)
     duration = int(get_video_duration(kwargs['uri']).total_seconds()) if "video" == kwargs['mimetype'] else kwargs['duration']
 
     return {
-        'announce_id': announce_id,
+        'asset_id': asset_id,
         'duration': duration,
         'end_date': kwargs['end_date'],
         'is_active': 1,
@@ -658,14 +658,14 @@ def remove_default_assets():
     settings.load()
     with db.conn(settings['database']) as conn:
         for asset in assets_helper.read(conn):
-            if asset['announce_id'].startswith('default_'):
-                assets_helper.delete(conn, asset['announce_id'])
+            if asset['asset_id'].startswith('default_'):
+                assets_helper.delete(conn, asset['asset_id'])
 
 
 def update_asset(asset, data):
     for key, value in data.items():
 
-        if key in ['announce_id', 'is_processing', 'mimetype', 'uri'] or key not in asset:
+        if key in ['asset_id', 'is_processing', 'mimetype', 'uri'] or key not in asset:
             continue
 
         if key in ['start_date', 'end_date']:
@@ -764,7 +764,7 @@ class Asset(Resource):
     @swagger.doc({
         'parameters': [
             {
-                'name': 'announce_id',
+                'name': 'asset_id',
                 'type': 'string',
                 'in': 'path',
                 'description': 'id of an asset'
@@ -777,14 +777,14 @@ class Asset(Resource):
             }
         }
     })
-    def get(self, announce_id):
+    def get(self, asset_id):
         with db.conn(settings['database']) as conn:
-            return assets_helper.read(conn, announce_id)
+            return assets_helper.read(conn, asset_id)
 
     @swagger.doc({
         'parameters': [
             {
-                'name': 'announce_id',
+                'name': 'asset_id',
                 'type': 'string',
                 'in': 'path',
                 'description': 'id of an asset'
@@ -797,7 +797,7 @@ class Asset(Resource):
                     '''
                     Content-Type: application/x-www-form-urlencoded
                     model: "{
-                        "announce_id": "793406aa1fd34b85aa82614004c0e63a",
+                        "asset_id": "793406aa1fd34b85aa82614004c0e63a",
                         "name": "Website",
                         "mimetype": "webpage",
                         "uri": "http://example.com",
@@ -821,14 +821,14 @@ class Asset(Resource):
             }
         }
     })
-    def put(self, announce_id):
+    def put(self, asset_id):
         with db.conn(settings['database']) as conn:
-            return assets_helper.update(conn, announce_id, prepare_asset(request))
+            return assets_helper.update(conn, asset_id, prepare_asset(request))
 
     @swagger.doc({
         'parameters': [
             {
-                'name': 'announce_id',
+                'name': 'asset_id',
                 'type': 'string',
                 'in': 'path',
                 'description': 'id of an asset'
@@ -840,15 +840,15 @@ class Asset(Resource):
             }
         }
     })
-    def delete(self, announce_id):
+    def delete(self, asset_id):
         with db.conn(settings['database']) as conn:
-            asset = assets_helper.read(conn, announce_id)
+            asset = assets_helper.read(conn, asset_id)
             try:
                 if asset['uri'].startswith(settings['assetdir']):
                     remove(asset['uri'])
             except OSError:
                 pass
-            assets_helper.delete(conn, announce_id)
+            assets_helper.delete(conn, asset_id)
             return '', 204  # return an OK with no content
 
 
@@ -904,7 +904,7 @@ class AssetV1_1(Resource):
     @swagger.doc({
         'parameters': [
             {
-                'name': 'announce_id',
+                'name': 'asset_id',
                 'type': 'string',
                 'in': 'path',
                 'description': 'id of an asset'
@@ -917,14 +917,14 @@ class AssetV1_1(Resource):
             }
         }
     })
-    def get(self, announce_id):
+    def get(self, asset_id):
         with db.conn(settings['database']) as conn:
-            return assets_helper.read(conn, announce_id)
+            return assets_helper.read(conn, asset_id)
 
     @swagger.doc({
         'parameters': [
             {
-                'name': 'announce_id',
+                'name': 'asset_id',
                 'type': 'string',
                 'in': 'path',
                 'description': 'id of an asset',
@@ -945,14 +945,14 @@ class AssetV1_1(Resource):
             }
         }
     })
-    def put(self, announce_id):
+    def put(self, asset_id):
         with db.conn(settings['database']) as conn:
-            return assets_helper.update(conn, announce_id, prepare_asset(request))
+            return assets_helper.update(conn, asset_id, prepare_asset(request))
 
     @swagger.doc({
         'parameters': [
             {
-                'name': 'announce_id',
+                'name': 'asset_id',
                 'type': 'string',
                 'in': 'path',
                 'description': 'id of an asset',
@@ -966,15 +966,15 @@ class AssetV1_1(Resource):
             }
         }
     })
-    def delete(self, announce_id):
+    def delete(self, asset_id):
         with db.conn(settings['database']) as conn:
-            asset = assets_helper.read(conn, announce_id)
+            asset = assets_helper.read(conn, asset_id)
             try:
                 if asset['uri'].startswith(settings['assetdir']):
                     remove(asset['uri'])
             except OSError:
                 pass
-            assets_helper.delete(conn, announce_id)
+            assets_helper.delete(conn, asset_id)
             return '', 204  # return an OK with no content
 
 
@@ -1021,14 +1021,14 @@ class AssetsV1_2(Resource):
             raise Exception("Could not retrieve file. Check the asset URL.")
         with db.conn(settings['database']) as conn:
             assets = assets_helper.read(conn)
-            ids_of_active_assets = [x['announce_id'] for x in assets if x['is_active']]
+            ids_of_active_assets = [x['asset_id'] for x in assets if x['is_active']]
 
             asset = assets_helper.create(conn, asset)
 
             if asset['is_active']:
-                ids_of_active_assets.insert(asset['play_order'], asset['announce_id'])
+                ids_of_active_assets.insert(asset['play_order'], asset['asset_id'])
             assets_helper.save_ordering(conn, ids_of_active_assets)
-            return assets_helper.read(conn, asset['announce_id']), 201
+            return assets_helper.read(conn, asset['asset_id']), 201
 
 
 class AssetV1_2(Resource):
@@ -1037,7 +1037,7 @@ class AssetV1_2(Resource):
     @swagger.doc({
         'parameters': [
             {
-                'name': 'announce_id',
+                'name': 'asset_id',
                 'type': 'string',
                 'in': 'path',
                 'description': 'id of an asset'
@@ -1050,14 +1050,14 @@ class AssetV1_2(Resource):
             }
         }
     })
-    def get(self, announce_id):
+    def get(self, asset_id):
         with db.conn(settings['database']) as conn:
-            return assets_helper.read(conn, announce_id)
+            return assets_helper.read(conn, asset_id)
 
     @swagger.doc({
         'parameters': [
             {
-                'name': 'announce_id',
+                'name': 'asset_id',
                 'type': 'string',
                 'in': 'path',
                 'description': 'ID of an asset',
@@ -1078,34 +1078,34 @@ class AssetV1_2(Resource):
             }
         }
     })
-    def patch(self, announce_id):
+    def patch(self, asset_id):
         data = json.loads(request.data)
         with db.conn(settings['database']) as conn:
 
-            asset = assets_helper.read(conn, announce_id)
+            asset = assets_helper.read(conn, asset_id)
             if not asset:
                 raise Exception('Asset not found.')
             update_asset(asset, data)
 
             assets = assets_helper.read(conn)
-            ids_of_active_assets = [x['announce_id'] for x in assets if x['is_active']]
+            ids_of_active_assets = [x['asset_id'] for x in assets if x['is_active']]
 
-            asset = assets_helper.update(conn, announce_id, asset)
+            asset = assets_helper.update(conn, asset_id, asset)
 
             try:
-                ids_of_active_assets.remove(asset['announce_id'])
+                ids_of_active_assets.remove(asset['asset_id'])
             except ValueError:
                 pass
             if asset['is_active']:
-                ids_of_active_assets.insert(asset['play_order'], asset['announce_id'])
+                ids_of_active_assets.insert(asset['play_order'], asset['asset_id'])
 
             assets_helper.save_ordering(conn, ids_of_active_assets)
-            return assets_helper.read(conn, announce_id)
+            return assets_helper.read(conn, asset_id)
 
     @swagger.doc({
         'parameters': [
             {
-                'name': 'announce_id',
+                'name': 'asset_id',
                 'type': 'string',
                 'in': 'path',
                 'description': 'id of an asset',
@@ -1126,28 +1126,28 @@ class AssetV1_2(Resource):
             }
         }
     })
-    def put(self, announce_id):
-        asset = prepare_asset_v1_2(request, announce_id)
+    def put(self, asset_id):
+        asset = prepare_asset_v1_2(request, asset_id)
         with db.conn(settings['database']) as conn:
             assets = assets_helper.read(conn)
-            ids_of_active_assets = [x['announce_id'] for x in assets if x['is_active']]
+            ids_of_active_assets = [x['asset_id'] for x in assets if x['is_active']]
 
-            asset = assets_helper.update(conn, announce_id, asset)
+            asset = assets_helper.update(conn, asset_id, asset)
 
             try:
-                ids_of_active_assets.remove(asset['announce_id'])
+                ids_of_active_assets.remove(asset['asset_id'])
             except ValueError:
                 pass
             if asset['is_active']:
-                ids_of_active_assets.insert(asset['play_order'], asset['announce_id'])
+                ids_of_active_assets.insert(asset['play_order'], asset['asset_id'])
 
             assets_helper.save_ordering(conn, ids_of_active_assets)
-            return assets_helper.read(conn, announce_id)
+            return assets_helper.read(conn, asset_id)
 
     @swagger.doc({
         'parameters': [
             {
-                'name': 'announce_id',
+                'name': 'asset_id',
                 'type': 'string',
                 'in': 'path',
                 'description': 'id of an asset',
@@ -1161,15 +1161,15 @@ class AssetV1_2(Resource):
             }
         }
     })
-    def delete(self, announce_id):
+    def delete(self, asset_id):
         with db.conn(settings['database']) as conn:
-            asset = assets_helper.read(conn, announce_id)
+            asset = assets_helper.read(conn, asset_id)
             try:
                 if asset['uri'].startswith(settings['assetdir']):
                     remove(asset['uri'])
             except OSError:
                 pass
-            assets_helper.delete(conn, announce_id)
+            assets_helper.delete(conn, asset_id)
             return '', 204  # return an OK with no content
 
 
@@ -1486,7 +1486,7 @@ class AssetsControl(Resource):
                     Control commands:
                     next - show next asset
                     previous - show previous asset
-                    asset&announce_id - show asset with `announce_id` id
+                    asset&asset_id - show asset with `asset_id` id
                     '''
             }
         ],
@@ -1508,7 +1508,7 @@ class AssetContent(Resource):
     @swagger.doc({
         'parameters': [
             {
-                'name': 'announce_id',
+                'name': 'asset_id',
                 'type': 'string',
                 'in': 'path',
                 'description': 'id of an asset'
@@ -1529,9 +1529,9 @@ class AssetContent(Resource):
             }
         }
     })
-    def get(self, announce_id):
+    def get(self, asset_id):
         with db.conn(settings['database']) as conn:
-            asset = assets_helper.read(conn, announce_id)
+            asset = assets_helper.read(conn, asset_id)
 
         if isinstance(asset, list):
             raise Exception('Invalid asset ID provided')
@@ -1576,25 +1576,25 @@ class ViewerCurrentAsset(Resource):
         collector = ZmqCollector.get_instance()
 
         publisher = ZmqPublisher.get_instance()
-        publisher.send_to_viewer('current_announce_id')
+        publisher.send_to_viewer('current_asset_id')
 
         collector_result = collector.recv_json(2000)
-        current_announce_id = collector_result.get('current_announce_id')
+        current_asset_id = collector_result.get('current_asset_id')
 
-        if not current_announce_id:
+        if not current_asset_id:
             return []
 
         with db.conn(settings['database']) as conn:
-            return assets_helper.read(conn, current_announce_id)
+            return assets_helper.read(conn, current_asset_id)
 
 
 api.add_resource(Assets, '/api/v1/assets')
-api.add_resource(Asset, '/api/v1/assets/<announce_id>')
+api.add_resource(Asset, '/api/v1/assets/<asset_id>')
 api.add_resource(AssetsV1_1, '/api/v1.1/assets')
-api.add_resource(AssetV1_1, '/api/v1.1/assets/<announce_id>')
+api.add_resource(AssetV1_1, '/api/v1.1/assets/<asset_id>')
 api.add_resource(AssetsV1_2, '/api/v1.2/assets')
-api.add_resource(AssetV1_2, '/api/v1.2/assets/<announce_id>')
-api.add_resource(AssetContent, '/api/v1/assets/<announce_id>/content')
+api.add_resource(AssetV1_2, '/api/v1.2/assets/<asset_id>')
+api.add_resource(AssetContent, '/api/v1/assets/<asset_id>/content')
 api.add_resource(FileAsset, '/api/v1/file_asset')
 api.add_resource(PlaylistOrder, '/api/v1/assets/order')
 api.add_resource(Backup, '/api/v1/backup')

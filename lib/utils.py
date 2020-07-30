@@ -272,14 +272,14 @@ def url_fails(url):
     return True
 
 
-def download_video_from_youtube(uri, announce_id):
+def download_video_from_youtube(uri, asset_id):
     home = getenv('HOME')
     name = check_output(['youtube-dl', '-e', uri])
     info = json.loads(check_output(['youtube-dl', '-j', uri]))
     duration = info['duration']
 
-    location = path.join(home, 'screenly_assets', announce_id)
-    thread = YoutubeDownloadThread(location, uri, announce_id)
+    location = path.join(home, 'screenly_assets', asset_id)
+    thread = YoutubeDownloadThread(location, uri, asset_id)
     thread.daemon = True
     thread.start()
 
@@ -287,19 +287,19 @@ def download_video_from_youtube(uri, announce_id):
 
 
 class YoutubeDownloadThread(Thread):
-    def __init__(self, location, uri, announce_id):
+    def __init__(self, location, uri, asset_id):
         Thread.__init__(self)
         self.location = location
         self.uri = uri
-        self.announce_id = announce_id
+        self.asset_id = asset_id
 
     def run(self):
         publisher = ZmqPublisher.get_instance()
         call(['youtube-dl', '-f', 'mp4', '-o', self.location, self.uri])
         with db.conn(settings['database']) as conn:
-            update(conn, self.announce_id, {'announce_id': self.announce_id, 'is_processing': 0})
+            update(conn, self.asset_id, {'asset_id': self.asset_id, 'is_processing': 0})
 
-        publisher.send_to_ws_server(self.announce_id)
+        publisher.send_to_ws_server(self.asset_id)
 
 
 def template_handle_unicode(value):
