@@ -33,6 +33,6 @@ requests[security]==2.22.0
 sh==1.08
 six==1.11.0
 uptime==2.0.2
-urllib3==1.25.7
+urllib3==1.26.5
 werkzeug==0.15.3
 youtube_dl>=2017.7.2
